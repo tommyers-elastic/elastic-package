@@ -32,6 +32,7 @@ require (
 	github.com/shirou/gopsutil/v3 v3.23.8
 	github.com/spf13/cobra v1.7.0
 	github.com/stretchr/testify v1.8.4
+	github.com/tommyers-elastic/package-spec/v2 v2.0.0-20230926211000-e30631eea4e2
 	golang.org/x/tools v0.13.0
 	gopkg.in/yaml.v3 v3.0.1
 	gotest.tools/gotestsum v1.11.0
