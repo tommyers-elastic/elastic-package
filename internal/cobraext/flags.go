@@ -92,6 +92,9 @@ const (
 	DeferCleanupFlagName        = "defer-cleanup"
 	DeferCleanupFlagDescription = "defer test cleanup for debugging purposes"
 
+	DryRunFlagName              = "dry-run"
+	DryRunFlagDescription       = "do not write fixes back to the package"
+
 	DumpOutputFlagName        = "output"
 	DumpOutputFlagDescription = "path to directory where exported assets will be stored"
 
