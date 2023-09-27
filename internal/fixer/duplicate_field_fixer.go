@@ -9,7 +9,6 @@ import (
 	"io"
 	"regexp"
 	"os"
-	"strings"
 
 	"gopkg.in/yaml.v3"
 
@@ -53,12 +52,13 @@ func (lf *DuplicateFieldFixer) Fix() error {
 		}
 	}
 
-	r, err := os.Open(fileToFix)
+	f, err := os.Open(fileToFix)
 	if err != nil {
 		return err
 	}
+	defer f.Close()
 
-	b, err := io.ReadAll(r)
+	b, err := io.ReadAll(f)
 	if err != nil {
 		return err
 	}
@@ -79,7 +79,7 @@ func (lf *DuplicateFieldFixer) Fix() error {
 	if err != nil {
 		return fmt.Errorf("could not marshal fields to YAML: %w", err)
 	}
-	
+
 	if err := overwriteFile(fileToFix, newFields); err != nil {
 		return fmt.Errorf("error fixing file (%s): %w", fileToFix, err)
 	}
@@ -103,7 +103,7 @@ func deduplicate(inputFields fields.FieldDefinitions, fieldPrefix string, fullyQ
 				break
 			}
 		}
-		
+
 		if add {
 			if f.Type == "group" {
 				f.Fields = deduplicate(f.Fields, fullyQualifiedName, fullyQualifiedNames)

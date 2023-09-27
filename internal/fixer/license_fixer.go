@@ -6,9 +6,7 @@ package fixer
 
 import (
 	"fmt"
-	"io"
 	"regexp"
-	"os"
 	
 	"gopkg.in/yaml.v3"
 )
@@ -39,19 +37,9 @@ func (lf *LicenceFixer) Detect(e error) bool {
 }
 
 func (lf *LicenceFixer) Fix() error {
-	r, err := os.Open(lf.manifestFilePath)
+	manifest, err := parseManifest(lf.manifestFilePath)
 	if err != nil {
-		return err
-	}
-
-	b, err := io.ReadAll(r)
-	if err != nil {
-		return err
-	}
-
-	var manifest map[string]interface{}
-	if err := yaml.Unmarshal(b, &manifest); err != nil {
-		return fmt.Errorf("could not parse manifest: %w", err)
+		return fmt.Errorf("error parsing manifest: %w", err)
 	}
 	
 	licenseValue := manifest["license"].(string)

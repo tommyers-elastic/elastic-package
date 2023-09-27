@@ -97,6 +97,8 @@ func fixCommandAction(cmd *cobra.Command, args []string) error {
 				fmt.Println("😭 No fixer found for this error; could not fix")			
 			}
 		}
+	} else {
+		fmt.Println("✅ nothing to fix - all done!")
 	}
 
 	return nil
