@@ -16,23 +16,24 @@ import (
 
 // FieldDefinition describes a single field with its properties.
 type FieldDefinition struct {
-	Name           string            `yaml:"name"`
-	Description    string            `yaml:"description"`
-	Type           string            `yaml:"type"`
-	ObjectType     string            `yaml:"object_type"`
-	Value          string            `yaml:"value"` // The value to associate with a constant_keyword field.
-	AllowedValues  AllowedValues     `yaml:"allowed_values"`
-	ExpectedValues []string          `yaml:"expected_values"`
-	Pattern        string            `yaml:"pattern"`
-	Unit           string            `yaml:"unit"`
-	MetricType     string            `yaml:"metric_type"`
-	External       string            `yaml:"external"`
-	Index          *bool             `yaml:"index"`
-	DocValues      *bool             `yaml:"doc_values"`
+	Name           string            `yaml:"name,omitempty"`
+	Description    string            `yaml:"description,omitempty"`
+	Type           string            `yaml:"type,omitempty"`
+	ObjectType     string            `yaml:"object_type,omitempty"`
+	Value          string            `yaml:"value,omitempty"` // The value to associate with a constant_keyword field.
+	AllowedValues  AllowedValues     `yaml:"allowed_values,omitempty"`
+	ExpectedValues []string          `yaml:"expected_values,omitempty"`
+	Pattern        string            `yaml:"pattern,omitempty"`
+	Unit           string            `yaml:"unit,omitempty"`
+	MetricType     string            `yaml:"metric_type,omitempty"`
+	External       string            `yaml:"external,omitempty"`
+	Index          *bool             `yaml:"index,omitempty"`
+	DocValues      *bool             `yaml:"doc_values,omitempty"`
 	Normalize      []string          `yaml:"normalize,omitempty"`
 	Fields         FieldDefinitions  `yaml:"fields,omitempty"`
 	MultiFields    []FieldDefinition `yaml:"multi_fields,omitempty"`
 	Reusable       *ReusableConfig   `yaml:"reusable,omitempty"`
+	Dimension     *bool              `yaml:"dimension,omitempty"`
 
 	// disallowAtTopLevel transfers the reusability config from parent groups to nested fields.
 	// It is negated respect to Reusable.TopLevel, so it is disabled by default.
@@ -122,6 +123,42 @@ func updateFields(origFields, fields []FieldDefinition) []FieldDefinition {
 // FieldDefinitions is an array of FieldDefinition, this can be unmarshalled from
 // a yaml list or a yaml map.
 type FieldDefinitions []FieldDefinition
+
+//func (fds *FieldDefinitions) deduplicate(fullyQualifiedNames []string) (FieldDefinitions, error) {
+//	for _, fd := range *fds {
+//		if fd.Type == "group" {
+//			return fd.Fields.deduplicate(fullyQualifiedNames)
+//		} else {
+//
+//		}
+//	}
+//}
+//
+//func (fds *FieldDefinitions) Deduplicate() (FieldDefinitions, error) {
+//	val fqns []string
+//	fields := fds
+//	for _, fd := range fds {
+//		if fd.Type == "group" {
+//
+//		} else {
+//
+//		}
+//	}
+//}
+//
+//func (fd *FieldDefinition) iterNested(prefix string) []FieldDefinition {
+//	var fields []FieldDefinition
+//
+//	if fd.Type == "group" {
+//		for _, field := range fd.Fields {
+//			fields = append(fields, field.iterNested(prefix + fd.Name)...)
+//		}
+//	} else  {
+//		fields = []FieldDefinition{*fd}
+//	}
+//
+//	return fields
+//}
 
 func (fds *FieldDefinitions) UnmarshalYAML(value *yaml.Node) error {
 	nilNode := yaml.Kind(0)

@@ -67,6 +67,7 @@ func fixCommandAction(cmd *cobra.Command, args []string) error {
 	fixers := []fixer.Fixer{
 		fixer.NewLicenseFixer(),
 		fixer.NewReleaseFixer(),
+		fixer.NewDuplicateFieldFixer(),
 	}
 
 	err = validator.ValidateFromPath(packageRoot)

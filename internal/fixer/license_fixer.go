@@ -20,7 +20,7 @@ type LicenceFixer struct {
 
 func NewLicenseFixer() *LicenceFixer {
 	return &LicenceFixer{
-		re: regexp.MustCompile(`file "(.*?/manifest.ya?ml)" is invalid: field .+?: Additional property license is not allowed`),
+		re: regexp.MustCompile(`file "(.*?/manifest\.ya?ml)" is invalid: field .+?: Additional property license is not allowed`),
 	}
 }
 
@@ -60,11 +60,13 @@ func (lf *LicenceFixer) Fix() error {
 	conditions := manifest["conditions"].(map[string]interface{})
 	conditions["elastic"] = map[string]string{"subscription": licenseValue}
 	
-	_, err = yaml.Marshal(manifest)
+	newManifest, err := yaml.Marshal(manifest)
 	if err != nil {
 		return fmt.Errorf("could not marshal manifest to YAML: %w", err)
 	}
 	
-	// todo: write the manifest file back
+	if err := overwriteFile(lf.manifestFilePath, newManifest); err != nil {
+		return fmt.Errorf("error fixing file (%s): %w", lf.manifestFilePath, err)
+	}
 	return nil
 }

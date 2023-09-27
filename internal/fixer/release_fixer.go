@@ -5,6 +5,7 @@
 package fixer
 
 import (
+	"fmt"
 	"regexp"
 )
 
@@ -34,5 +35,5 @@ func (lf *ReleaseFixer) Detect(e error) bool {
 }
 
 func (lf *ReleaseFixer) Fix() error {
-	return nil
+	return fmt.Errorf("fixer not implemented yet")
 }
