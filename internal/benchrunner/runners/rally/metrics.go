@@ -37,8 +37,8 @@ type collector struct {
 
 	startIngestMetrics map[string]ingest.PipelineStatsMap
 	endIngestMetrics   map[string]ingest.PipelineStatsMap
-	startMetrics       metrics
-	endMetrics         metrics
+	startMetrics       *metrics
+	endMetrics         *metrics
 	diskUsage          map[string]ingest.DiskUsage
 	startTotalHits     int
 	endTotalHits       int
@@ -97,9 +97,13 @@ func (c *collector) start() {
 		defer c.wg.Done()
 
 		<-c.stopC
+
 		// last collect before stopping
 		c.collectMetricsAfterRallyRun()
-		c.publish(c.createEventsFromMetrics(c.endMetrics))
+
+		if c.endMetrics != nil {
+			c.publish(c.createEventsFromMetrics(c.endMetrics))
+		}
 	}()
 }
 
@@ -129,7 +133,7 @@ func (c *collector) collectMetricsBeforeRallyRun() {
 	c.publish(c.createEventsFromMetrics(c.startMetrics))
 }
 
-func (c *collector) collect() metrics {
+func (c *collector) collect() *metrics {
 	m := metrics{
 		ts: time.Now().Unix(),
 	}
@@ -148,7 +152,7 @@ func (c *collector) collect() metrics {
 		m.dsMetrics = dsstats
 	}
 
-	return m
+	return &m
 }
 
 func (c *collector) publish(events [][]byte) {
@@ -214,15 +218,14 @@ func (c *collector) summarize() (*metricsSummary, error) {
 		TotalHits:           c.endTotalHits - c.startTotalHits,
 	}
 
-	if c.startMetrics.nMetrics != nil {
+	if c.startMetrics != nil {
 		sum.ClusterName = c.startMetrics.nMetrics.ClusterName
+		sum.CollectionStartTs = c.startMetrics.ts
+		sum.CollectionEndTs = c.endMetrics.ts
 	}
-	sum.CollectionStartTs = c.startMetrics.ts
-	sum.CollectionEndTs = c.endMetrics.ts
-	if c.endMetrics.dsMetrics != nil {
+
+	if c.endMetrics != nil {
 		sum.DataStreamStats = c.endMetrics.dsMetrics
-	}
-	if c.endMetrics.nMetrics != nil {
 		sum.Nodes = len(c.endMetrics.nMetrics.Nodes)
 	}
 
@@ -313,7 +316,7 @@ func (c *collector) collectTotalHits() int {
 	return totalHits
 }
 
-func (c *collector) createEventsFromMetrics(m metrics) [][]byte {
+func (c *collector) createEventsFromMetrics(m *metrics) [][]byte {
 	dsEvent := struct {
 		Timestamp int64 `json:"@timestamp"`
 		*ingest.DataStreamStats
